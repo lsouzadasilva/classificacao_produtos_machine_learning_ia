@@ -171,8 +171,6 @@ exibir_resultados()
 
 def explicacao():
 
-    st.sidebar.divider()
-
     st.sidebar.markdown("""
         **Bem-vindo à aplicação de Classificação de Produtos!** 🎯
 

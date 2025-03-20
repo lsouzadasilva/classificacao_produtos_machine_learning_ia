@@ -182,6 +182,9 @@ def explicacao():
 
         O modelo de classificação pode ser ajustado para diferentes algoritmos de aprendizado de máquina, permitindo testar e comparar a eficácia de cada um.
     """, unsafe_allow_html=True)
+
+    st.sidebar.divider()
+    st.sidebar.markdown("Desenvolvido por [Leandro Souza](https://br.linkedin.com/in/leandro-souza-313136190)")
     
 explicacao()
 

@@ -57,14 +57,24 @@ def carregamento_teste():
     return df_teste
 df_teste = carregamento_teste()
 
-
 def pre_processamento():
     codificador_marca = LabelEncoder()
     df_treino['marca'] = codificador_marca.fit_transform(df_treino['marca'])
     codificador_tipo = LabelEncoder()
     df_treino['tipo'] = codificador_tipo.fit_transform(df_treino['tipo'])
-    return df_treino
-df_treino = pre_processamento()
+    return df_treino, codificador_marca, codificador_tipo
+
+df_treino, codificador_marca, codificador_tipo = pre_processamento()
+
+
+
+# def pre_processamento():
+#     codificador_marca = LabelEncoder()
+#     df_treino['marca'] = codificador_marca.fit_transform(df_treino['marca'])
+#     codificador_tipo = LabelEncoder()
+#     df_treino['tipo'] = codificador_tipo.fit_transform(df_treino['tipo'])
+#     return df_treino
+# df_treino = pre_processamento()
 
 
 def conj_treinamento():
@@ -140,12 +150,12 @@ with col2:
     table = table_teste()
 
 def resultado():
-    df_teste['marca'] = codificador_marca_teste.transform(df_teste['marca'])
-    df_teste['tipo'] = codificador_tipo_teste.transform(df_teste['tipo'])
-    df_teste["comportamento_pagamento"] = codificador_pagamento.transform(df_teste["comportamento_pagamento"])
-    resultados = modelo_selecionado.predict(x_teste)
+    df_teste['marca'] = codificador_marca.transform(df_teste['marca'])
+    df_teste['tipo'] = codificador_tipo.transform(df_teste['tipo'])
+    resultados = modelo_selecionado.predict(df_teste)
     return resultados
 resultados = resultado()
+
     
 # def resultado():
 #     codificador_marca_teste = LabelEncoder()

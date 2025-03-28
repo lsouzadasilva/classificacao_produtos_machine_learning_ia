@@ -22,9 +22,7 @@ def config__tela():
     st.markdown("<h4 style='text-align: center; color: #FFD700;'>Tecnologia e Vestuário</h4>", unsafe_allow_html=True)
 config__tela()
 
-
 st.divider()
-
 
 # Ocultar menus
 def ocultar_menu():
@@ -37,7 +35,6 @@ def ocultar_menu():
     st.markdown(hide_st_style, unsafe_allow_html=True)
 ocultar_menu()
 
-
 # Carregando os dados
 @st.cache_data
 def carregamento_treino():
@@ -48,7 +45,6 @@ def carregamento_treino():
     return df_treino
 df_treino = carregamento_treino()
 
-
 @st.cache_data
 def carregamento_teste():
     data_url = "https://raw.githubusercontent.com/lsouzadasilva/datasets/main/treinamento_teste_produto.xlsx"
@@ -57,15 +53,13 @@ def carregamento_teste():
     return df_teste
 df_teste = carregamento_teste()
 
-
 def pre_processamento():
-     codificador_marca = LabelEncoder()
-     df_treino['marca'] = codificador_marca.fit_transform(df_treino['marca'])
-     codificador_tipo = LabelEncoder()
-     df_treino['tipo'] = codificador_tipo.fit_transform(df_treino['tipo'])
-     return df_treino
- df_treino = pre_processamento()
-
+    codificador_marca = LabelEncoder()
+    df_treino['marca'] = codificador_marca.fit_transform(df_treino['marca'])
+    codificador_tipo = LabelEncoder()
+    df_treino['tipo'] = codificador_tipo.fit_transform(df_treino['tipo'])
+    return df_treino
+df_treino = pre_processamento()
 
 def conj_treinamento():
     y = df_treino['categoria']
@@ -73,7 +67,6 @@ def conj_treinamento():
     x_treino, x_teste, y_treino, y_teste = train_test_split(x, y, test_size=0.3)
     return x_treino, x_teste, y_treino, y_teste
 x_treino, x_teste, y_treino, y_teste = conj_treinamento()
-
 
 def modelo_ia(x_treino, y_treino):
     modelos = {
@@ -94,16 +87,13 @@ def modelo_ia(x_treino, y_treino):
     modelo_selecionado.fit(x_treino, y_treino)
 
     return modelo_selecionado
-
 modelo_selecionado = modelo_ia(x_treino, y_treino)
-
 
 def acuracidade():
     previsao = modelo_selecionado.predict(x_teste)
     acuracia = accuracy_score(y_teste, previsao)
     return acuracia
 acuracia = acuracidade()
-
 
 def card():
     nome_modelo = type(modelo_selecionado).__name__ 
@@ -112,7 +102,6 @@ def card():
         value=f"{acuracia:.2f}%"
     )
 card()
-
 
 col1, col2 = st.columns(2)
 
@@ -127,7 +116,7 @@ with col1:
         table = st.dataframe(table, use_container_width=True, hide_index=True)
         return table
     table = table_treino()
-    
+
 with col2:
     def table_teste():
         st.markdown('## Teste')
@@ -139,15 +128,14 @@ with col2:
         return table
     table = table_teste()
 
-    
-   def resultado():
-       codificador_marca_teste = LabelEncoder()
-       df_teste['marca'] = codificador_marca_teste.fit_transform(df_teste['marca'])
-       codificador_tipo_teste = LabelEncoder()
-       df_teste['tipo'] = codificador_tipo_teste.fit_transform(df_teste['tipo'])
-       resultados = modelo_selecionado.predict(df_teste)
-       return resultados
-   resultados = resultado()
+def resultado():
+    codificador_marca_teste = LabelEncoder()
+    df_teste['marca'] = codificador_marca_teste.fit_transform(df_teste['marca'])
+    codificador_tipo_teste = LabelEncoder()
+    df_teste['tipo'] = codificador_tipo_teste.fit_transform(df_teste['tipo'])
+    resultados = modelo_selecionado.predict(df_teste)
+    return resultados
+resultados = resultado()
 
 st.divider()
 st.markdown(f'### Resultados')
@@ -165,12 +153,9 @@ def exibir_resultados():
         
     if st.sidebar.button('Atualizar Dados 🔄'):
         st.rerun()
-        
 exibir_resultados()
 
-
 def explicacao():
-
     st.sidebar.markdown("""
         **Bem-vindo à aplicação de Classificação de Produtos!** 🎯
 
@@ -183,10 +168,4 @@ def explicacao():
 
     st.sidebar.divider()
     st.sidebar.markdown("Desenvolvido por [Leandro Souza](https://br.linkedin.com/in/leandro-souza-313136190)")
-    
 explicacao()
-
-    
-    
-
-

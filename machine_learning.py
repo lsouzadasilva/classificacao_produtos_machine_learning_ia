@@ -138,16 +138,23 @@ with col2:
         table = st.dataframe(table, use_container_width=True, hide_index=True)
         return table
     table = table_teste()
-    
-    
+
 def resultado():
-    codificador_marca_teste = LabelEncoder()
-    df_teste['marca'] = codificador_marca_teste.fit_transform(df_teste['marca'])
-    codificador_tipo_teste = LabelEncoder()
-    df_teste['tipo'] = codificador_tipo_teste.fit_transform(df_teste['tipo'])
-    resultados = modelo_selecionado.predict(df_teste)
+    df_teste['marca'] = codificador_marca_teste.transform(df_teste['marca'])
+    df_teste['tipo'] = codificador_tipo_teste.transform(df_teste['tipo'])
+    df_teste["comportamento_pagamento"] = codificador_pagamento.transform(df_teste["comportamento_pagamento"])
+    resultados = modelo_selecionado.predict(x_teste)
     return resultados
 resultados = resultado()
+    
+# def resultado():
+#     codificador_marca_teste = LabelEncoder()
+#     df_teste['marca'] = codificador_marca_teste.fit_transform(df_teste['marca'])
+#     codificador_tipo_teste = LabelEncoder()
+#     df_teste['tipo'] = codificador_tipo_teste.fit_transform(df_teste['tipo'])
+#     resultados = modelo_selecionado.predict(df_teste)
+#     return resultados
+# resultados = resultado()
 
 st.divider()
 st.markdown(f'### Resultados')

@@ -11,7 +11,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from collections import Counter
 
-
 # Configuração de tela 
 def config__tela():
     st.set_page_config(
@@ -56,10 +55,13 @@ df_teste = carregamento_teste()
 def pre_processamento():
     codificador_marca = LabelEncoder()
     df_treino['marca'] = codificador_marca.fit_transform(df_treino['marca'])
+
     codificador_tipo = LabelEncoder()
     df_treino['tipo'] = codificador_tipo.fit_transform(df_treino['tipo'])
-    return df_treino
-df_treino = pre_processamento()
+
+    return df_treino, codificador_marca, codificador_tipo
+
+df_treino, codificador_marca, codificador_tipo = pre_processamento()
 
 def conj_treinamento():
     y = df_treino['categoria']
@@ -129,30 +131,61 @@ with col2:
     table = table_teste()
 
 def resultado():
-    codificador_marca_teste = LabelEncoder()
-    df_teste['marca'] = codificador_marca_teste.fit_transform(df_teste['marca'])
-    codificador_tipo_teste = LabelEncoder()
-    df_teste['tipo'] = codificador_tipo_teste.fit_transform(df_teste['tipo'])
-    resultados = modelo_selecionado.predict(df_teste)
-    return resultados
-resultados = resultado()
+    df_teste_codificado = df_teste.copy()
+
+    # Filtrar valores desconhecidos
+    marcas_conhecidas = set(codificador_marca.classes_)
+    tipos_conhecidos = set(codificador_tipo.classes_)
+
+    df_teste_codificado = df_teste_codificado[
+        df_teste_codificado['marca'].isin(marcas_conhecidas) &
+        df_teste_codificado['tipo'].isin(tipos_conhecidos)
+    ]
+
+    if df_teste_codificado.empty:
+        return [], pd.DataFrame()
+
+    # Codificação
+    df_teste_codificado['marca'] = codificador_marca.transform(df_teste_codificado['marca'])
+    df_teste_codificado['tipo'] = codificador_tipo.transform(df_teste_codificado['tipo'])
+
+    resultados = modelo_selecionado.predict(df_teste_codificado)
+    return resultados, df_teste_codificado
+
+# Executa predição
+resultados, df_teste_filtrado = resultado()
 
 st.divider()
-st.markdown(f'### Resultados')
+st.markdown("<h4 style='text-align: center; color: #FFD700;'>Resultados 🎯</h4>", unsafe_allow_html=True)
 
 def exibir_resultados():
+    if df_teste_filtrado.empty:
+        st.warning("⚠️ Nenhum dado pôde ser classificado. Existem valores de marca ou tipo que não foram vistos no treinamento.")
+        return
+
+    df_resultado = df_teste_filtrado.copy()
+    df_resultado['categoria'] = resultados
+    df_resultado['marca'] = codificador_marca.inverse_transform(df_resultado['marca'])
+    df_resultado['tipo'] = codificador_tipo.inverse_transform(df_resultado['tipo'])
+
+    agrupado = df_resultado.groupby(['marca', 'tipo', 'categoria']).size().reset_index(name='quantidade')
+    agrupado = agrupado.sort_values(by='quantidade', ascending=False).reset_index(drop=True)
+
     contagem = Counter(resultados)
-    categorias = []
-    valores = []
-    
-    for categoria, freq in contagem.items():
-        categorias.append(categoria)
-        valores.append(freq)
-        st.progress(freq / sum(contagem.values()))
-        st.write(f"**{categoria}:** {freq} produtos")
-        
+    total_geral = sum(contagem.values())
+
+    for categoria, freq in sorted(contagem.items(), key=lambda item: item[1], reverse=True):
+        st.progress(freq / total_geral)
+        st.write(f"**{categoria}:** {freq} produto(s)")
+
+        sub_df = agrupado[agrupado['categoria'] == categoria]
+
+        for _, row in sub_df.iterrows():
+            st.write(f"- Marca: {row['marca']}, Tipo: {row['tipo']} → {row['quantidade']} produto(s)")
+
     if st.sidebar.button('Atualizar Dados 🔄'):
         st.rerun()
+
 exibir_resultados()
 
 def explicacao():
